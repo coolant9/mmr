@@ -264,10 +264,32 @@ int SetVolume(IXML_Document * in, IXML_Document **out,
 	}
   int set_volume = atoi(value);
 
+  char * change_event = \
+  "<Event xmlns=\"urn:schemas-upnp-org:metadata-1-0/AVT_RCS\">\r\n\
+    <InstanceID val=\"0\">\r\n\
+      <Volume channel=\"Master\" val=\"%s\"/>\r\n\
+    </InstanceID>\r\n\
+    </Event>";
+
+  char buf[1024];
+  sprintf ( buf, change_event, value);
+  printf("DEBUG>>>%s", buf);
+  int i=0;
+
+  for (i=0;i<SVC_RENDERING_CONTROL_VARCOUNT;i++)
+  {
+    printf("Name=%s,Value=%s\r\n",
+        tv_service_table[SERVICE_RENDERING_CONTROL].VariableName[i],
+        tv_service_table[SERVICE_RENDERING_CONTROL].VariableStrVal[i]);
+  }
+
+
+
 	/* lock state mutex */
 	ithread_mutex_lock(&MicroMediaRendererMutex);
 
   strcpy(tv_service_table[SERVICE_RENDERING_CONTROL].VariableStrVal[3], value);
+  strcpy(tv_service_table[SERVICE_RENDERING_CONTROL].VariableStrVal[5], buf);
 
 	ithread_mutex_unlock(&MicroMediaRendererMutex);
 
@@ -276,8 +298,10 @@ int SetVolume(IXML_Document * in, IXML_Document **out,
   response_node = UpnpMakeActionResponse("SetVolume",
       TvServiceType[SERVICE_RENDERING_CONTROL],
       1,
-      "NewVolume", value
+      "CurrentVolume", value
       );
+
+  free(value);
   *out = response_node;
   return UPNP_E_SUCCESS;
 }
