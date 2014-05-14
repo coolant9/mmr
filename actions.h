@@ -31,4 +31,19 @@ int GetVolume(IXML_Document * in, IXML_Document **out,
 
 int SetVolume(IXML_Document * in, IXML_Document **out,
     const char**errorString);
+
+int Next(IXML_Document * in, IXML_Document **out,
+    const char**errorString);
+
+int Pause(IXML_Document * in, IXML_Document **out,
+    const char**errorString);
+
+int Play(IXML_Document * in, IXML_Document **out,
+    const char**errorString);
+
+int Previous(IXML_Document * in, IXML_Document **out,
+    const char**errorString);
+
+int Seek(IXML_Document * in, IXML_Document **out,
+    const char**errorString);
 #endif // _HOME_GSALUJA_PROJECTS_COOLANT_UPNP_MICRO_MEDIA_RENDERER_ACTIONS.H

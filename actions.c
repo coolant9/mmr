@@ -4,6 +4,13 @@
 #include <sys/types.h>
 #include <signal.h>
 
+#include <mpd/client.h>
+#include <mpd/status.h>
+#include <mpd/song.h>
+#include <mpd/entity.h>
+#include <mpd/search.h>
+#include <mpd/tag.h>
+
 
 int SetActionTable(int serviceType, struct RendererService *out)
 {
@@ -61,8 +68,8 @@ int SetActionTable(int serviceType, struct RendererService *out)
 		out->actions[4] = GetTransportInfo;
 		out->actions[5] = MicroMediaPlay;
 		out->actions[6] = MicroMediaPlay;
-		out->actions[7] = MicroMediaPlay;
-		out->actions[8] = MicroMediaPlay;
+		out->actions[7] = Pause;
+		out->actions[8] = Play;
 		out->actions[9] = MicroMediaPlay;
 		out->actions[10] = MicroMediaPlay;
 		out->actions[11] = SetAVTransportURI;
@@ -81,34 +88,59 @@ int MicroMediaPlay(IXML_Document * in, IXML_Document **out,
   return UPNP_E_SUCCESS;
 }
 
+
+
 int GetTransportInfo(IXML_Document * in, IXML_Document **out,
     const char**errorString){
   IXML_Document *response_node = NULL;
+
+	/* lock state mutex */
+	ithread_mutex_lock(&MicroMediaRendererMutex);
+
   response_node = UpnpMakeActionResponse("GetTransportInfo",
       TvServiceType[SERVICE_AV_TRANSPORT],
-      4,
-      "Track", "1",
-      "TrackDuration", "0:04:00",
-      "TrackMetaData", "test.mp3",
-      "TrackURI",
-      tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[27]
+      3,
+      "CurrentTransportState",
+      tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15],
+      "CurrentTransportStatus",
+      tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[9],
+      "CurrentSpeed",
+      tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[29]
       );
+
+	ithread_mutex_unlock(&MicroMediaRendererMutex);
   *out = response_node;
   printf("%s", ixmlPrintDocument(*out));
   return UPNP_E_SUCCESS;
 }
+
 int GetPositionInfo(IXML_Document * in, IXML_Document **out,
     const char**errorString){
   IXML_Document *response_node = NULL;
+
+	/* lock state mutex */
+	ithread_mutex_lock(&MicroMediaRendererMutex);
+
   response_node = UpnpMakeActionResponse("GetPositionInfo",
       TvServiceType[SERVICE_AV_TRANSPORT],
-      4,
+      8,
       "Track", "1",
       "TrackDuration", "0:04:00",
       "TrackMetaData", "test.mp3",
       "TrackURI",
-      tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[27]
+      tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[27],
+      "RelTime",
+      "00:01:00",
+      "AbsTime",
+      "00:01:00",
+      "RelCount",
+      "1",
+      "AbsCount",
+      "1"
       );
+
+	ithread_mutex_unlock(&MicroMediaRendererMutex);
+
   *out = response_node;
   printf("%s", ixmlPrintDocument(*out));
   return UPNP_E_SUCCESS;
@@ -119,56 +151,135 @@ static int child_process=0;
 int SetAVTransportURI(IXML_Document * in, IXML_Document **out,
     const char**errorString){
   char *value = NULL;
-	(*out) = NULL;
 	(*errorString) = NULL;
 	if (!(value = SampleUtil_GetFirstDocumentItem(in, "CurrentURI"))) {
 		(*errorString) = "Invalid URL";
 		return UPNP_E_INVALID_PARAM;
 	}
+
+	/* lock state mutex */
+	ithread_mutex_lock(&MicroMediaRendererMutex);
+
   strcpy(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[27], value);
-  stop();
-  sleep(1);
-  child_process = play(value);
+  strcpy(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15], "STOPPED");
+
+	ithread_mutex_unlock(&MicroMediaRendererMutex);
+
   free(value);
-  if (child_process > 0)
-  {
-    return UPNP_E_SUCCESS;
+
+  *out = UpnpMakeActionResponse("SetAVTransportURI",
+      TvServiceType[SERVICE_AV_TRANSPORT],
+      0,
+      NULL);
+
+  return UPNP_E_SUCCESS;
+}
+
+bool play(const char *);
+
+int Play(IXML_Document * in, IXML_Document **out,
+    const char **errorString)
+{
+
+  IXML_Document *response_node = NULL;
+  response_node = UpnpMakeActionResponse("Play",
+      TvServiceType[SERVICE_AV_TRANSPORT],
+      0,
+      NULL);
+
+  *out=response_node;
+  char buf[1024];
+
+	/* lock state mutex */
+	ithread_mutex_lock(&MicroMediaRendererMutex);
+
+  strcpy(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15], "PLAYING");
+  strcpy(buf, tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[27]);
+
+	ithread_mutex_unlock(&MicroMediaRendererMutex);
+  play(buf);
+
+  return UPNP_E_SUCCESS;
+}
+
+int Pause(IXML_Document * in, IXML_Document **out,
+    const char**errorString){
+  IXML_Document *response_node = NULL;
+  response_node = UpnpMakeActionResponse("Pause",
+      TvServiceType[SERVICE_AV_TRANSPORT],
+      0,
+      NULL);
+
+	/* lock state mutex */
+	ithread_mutex_lock(&MicroMediaRendererMutex);
+
+  if(strcmp(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15],
+        "PLAYING") == 0){
+    strcpy(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15], "PAUSED_PLAYBACK");
   }
+  else
+  {
+    strcpy(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15], "PLAYING");
+  }
+
+	ithread_mutex_unlock(&MicroMediaRendererMutex);
+
+  pause();
+
+  *out=response_node;
+  return UPNP_E_SUCCESS;
 }
 
 int Stop(IXML_Document * in, IXML_Document **out,
     const char**errorString){
-  (*out) = NULL;
-  (*errorString) = NULL;
+  IXML_Document *response_node = NULL;
+  response_node = UpnpMakeActionResponse("Play",
+      TvServiceType[SERVICE_AV_TRANSPORT],
+      0,
+      NULL);
+
+	/* lock state mutex */
+	ithread_mutex_lock(&MicroMediaRendererMutex);
+
+  strcpy(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15], "STOPPED");
+
+	ithread_mutex_unlock(&MicroMediaRendererMutex);
   stop();
+  *out=response_node;
   return UPNP_E_SUCCESS;
 }
 
-int stop()
-{
-  FILE *rp;
-  rp = popen( "pgrep madplay", "r" );
-  if(rp != NULL)
-  {
-    int pid;
-    fscanf(rp, "%d", &pid);
-    kill(pid, SIGKILL);
-    fclose(rp);
-  }
+extern char tvc_varval;
 
-}
+//Rendering Control Actions.
 
+int SetVolume(IXML_Document * in, IXML_Document **out,
+    const char**errorString){
+  char *value = NULL;
+	(*out) = NULL;
+	(*errorString) = NULL;
+	if (!(value = SampleUtil_GetFirstDocumentItem(in, "DesiredVolume"))) {
+		(*errorString) = "Invalid URL";
+		return UPNP_E_INVALID_PARAM;
+	}
+  int set_volume = atoi(value);
 
-int play(const char *streamURL){
-  const char *command = "wget %s -O - | madplay -";
-  char complete_command[1024];
-  sprintf(complete_command, command, streamURL);
-  SampleUtil_Print(complete_command);
-  int cpid = fork();
-  if (cpid == 0){
-    system(complete_command);
-  }
-  return cpid;
+	/* lock state mutex */
+	ithread_mutex_lock(&MicroMediaRendererMutex);
+
+  strcpy(tv_service_table[SERVICE_RENDERING_CONTROL].VariableStrVal[3], value);
+
+	ithread_mutex_unlock(&MicroMediaRendererMutex);
+
+  set_alsa_level(set_volume);
+  IXML_Document *response_node = NULL;
+  response_node = UpnpMakeActionResponse("SetVolume",
+      TvServiceType[SERVICE_RENDERING_CONTROL],
+      1,
+      "NewVolume", value
+      );
+  *out = response_node;
+  return UPNP_E_SUCCESS;
 }
 
 int GetVolume(IXML_Document * in, IXML_Document **out,
@@ -187,29 +298,26 @@ int GetVolume(IXML_Document * in, IXML_Document **out,
   return UPNP_E_SUCCESS;
 }
 
-extern char tvc_varval;
-
-
-int SetVolume(IXML_Document * in, IXML_Document **out,
-    const char**errorString){
-  char *value = NULL;
-	(*out) = NULL;
-	(*errorString) = NULL;
-	if (!(value = SampleUtil_GetFirstDocumentItem(in, "DesiredVolume"))) {
-		(*errorString) = "Invalid URL";
-		return UPNP_E_INVALID_PARAM;
-	}
-  int set_volume = atoi(value);
-  strcpy(tv_service_table[SERVICE_RENDERING_CONTROL].VariableStrVal[3], value);
-  set_alsa_level(set_volume);
-  IXML_Document *response_node = NULL;
-  response_node = UpnpMakeActionResponse("SetVolume",
-      TvServiceType[SERVICE_RENDERING_CONTROL],
-      1,
-      "NewVolume", value
-      );
-  *out = response_node;
-  return UPNP_E_SUCCESS;
+// Move the following functions to player implementation.
+bool play(const char *streamURL){
+  bool retval = false;
+  struct mpd_connection* conn;
+  conn = mpd_connection_new("192.168.1.2", 6600, 0);
+  if(conn != NULL)
+  {
+    mpd_run_clear(conn);
+    retval = mpd_run_add(conn, streamURL);
+    if(retval)
+    {
+      retval = mpd_send_play(conn);
+    }
+    mpd_connection_free(conn);
+  }
+  else{
+    printf("Error connecting to mpd server");
+    printf("Error code : %d", mpd_connection_get_error(conn));
+  }
+  return retval;
 }
 
 int get_alsa_level(){
@@ -233,3 +341,29 @@ void set_alsa_level(unsigned int set_volume){
   FILE *rp;
   rp = popen( complete_command, "r" );
 }
+
+int stop()
+{
+  bool retval = false;
+  struct mpd_connection* conn;
+  conn = mpd_connection_new("192.168.1.2", 6600, 0);
+  if(mpd_connection_get_error(conn) != MPD_ERROR_SUCCESS)
+  {
+    retval = mpd_send_stop(conn);
+  }
+  return retval;
+}
+
+int pause()
+{
+  bool retval = false;
+  struct mpd_connection* conn;
+  conn = mpd_connection_new("192.168.1.2", 6600, 0);
+  if(mpd_connection_get_error(conn) != MPD_ERROR_SUCCESS)
+  {
+    retval = mpd_send_toggle_pause(conn);
+  }
+  return retval;
+}
+
+

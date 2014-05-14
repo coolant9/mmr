@@ -20,6 +20,8 @@ AC_CHECK_LIB([pthread], [main])
 AC_CHECK_LIB([threadutil], [main])
 # FIXME: Replace `main' with a function in `-lupnp':
 AC_CHECK_LIB([upnp], [main])
+# FIXME: Replace `main' with a function in `-lmpdclient':
+AC_CHECK_LIB([mpdclient], [main])
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdlib.h string.h])
