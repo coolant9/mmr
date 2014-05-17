@@ -1,5 +1,22 @@
 #include "endpoints.h"
 
+void getstreamfrompls(const char *URL, char * stream)
+{
+  char buff[1024];
+  const char *command = "cat %s | grep File1 | cut -f2 -d '='";
+  sprintf(buff, command, URL);
+  printf("[shoutcast] command = %s" ,  buff);
+
+  FILE *rp;
+  rp = popen( buff, "r" );
+  if(rp != NULL)
+  {
+    fscanf(rp, "%s", stream);
+    printf("Got stream %s" ,  stream);
+    fclose(rp);
+  }
+}
+
 bool play(const char *streamURL){
   bool retval = false;
   struct mpd_connection* conn;
@@ -7,10 +24,20 @@ bool play(const char *streamURL){
   if(conn != NULL)
   {
     mpd_run_clear(conn);
-    retval = mpd_run_add(conn, streamURL);
+    char stream[1024];
+    printf("[stream] : %s", streamURL);
+    if ( strstr(streamURL, "shoutcast") != NULL)
+    {
+      getstreamfrompls(streamURL, &stream);
+    }
+    else
+    {
+      strcpy(stream, streamURL);
+    }
+    retval = mpd_run_add(conn, stream);
 
     struct mpd_song *songInfo;
-    songInfo = mpd_recv_song(conn);
+    songInfo = mpd_run_get_queue_song_pos(conn, 0);
     if (songInfo != NULL){
     unsigned int duration = mpd_song_get_duration(songInfo);
 
@@ -18,9 +45,11 @@ bool play(const char *streamURL){
 
     free(songInfo);
     }
-    else{
+    else
+    {
       printf("Could not fetch duration");
     }
+
     if(retval)
     {
       retval = mpd_send_play(conn);
