@@ -146,21 +146,18 @@ int TvDeviceHandleActionRequest(struct Upnp_Action_Request *ca_event)
 	     i < TV_MAXACTIONS && tv_service_table[service].ActionNames[i] != NULL;
 	     i++) {
 		if (!strcmp(actionName, tv_service_table[service].ActionNames[i])) {
-//			if (!strcmp(tv_service_table[SERVICE_RENDERING_CONTROL].
-//				    VariableStrVal[TV_CONTROL_POWER], "1") ||
-//			    !strcmp(actionName, "PowerOn")) {
 				retCode = tv_service_table[service].actions[i](
 					ca_event->ActionRequest,
 					&ca_event->ActionResult,
 					&errorString);
-//			} else {
-//				errorString = "Power is Off";
-//				retCode = UPNP_E_INTERNAL_ERROR;
-//			}
 			action_found = 1;
 			break;
 		}
 	}
+  if (action_found != 1)
+  {
+      printf ("Need to implement : %s\n" , actionName);
+  }
 
 	if (!action_found) {
 		ca_event->ActionResult = NULL;

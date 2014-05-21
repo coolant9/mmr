@@ -8,17 +8,22 @@
 extern ithread_mutex_t MicroMediaRendererMutex;
 
 
-/*! Global arrays for storing Tv Control Service variable names, values,
- * and defaults. */
-const char *rc_varname[] = { "A_ARG_TYPE_InstanceID", "Mute", "PresetNameList",
-  "Volume", "A_ARG_TYPE_Channel", "LastChange", "A_ARG_TYPE_PresetName" };
+/*! Global arrays for storing Rendering Control Service variable names, values defaults. */
+const char *rc_varname[] = {
+  "A_ARG_TYPE_InstanceID",
+  "Mute",
+  "PresetNameList",
+  "Volume",
+  "A_ARG_TYPE_Channel",
+  "LastChange",
+  "A_ARG_TYPE_PresetName" };
 
-char tvc_varval[SVC_RENDERING_CONTROL_VARCOUNT][TV_MAX_VAL_LEN];
-const char *tvc_varval_def[] = { "0", "0", "5", "20", "Master", "LC", "0" };
+char rc_varval[SVC_RENDERING_CONTROL_VARCOUNT][TV_MAX_VAL_LEN];
+const char *rc_varval_def[] = { "0", "0", "5", "20", "Master", "LC", "0" };
 
-/*! Global arrays for storing Tv Picture Service variable names, values,
+/*! Global arrays for storing AVTransport Service variable names, values,
  * and defaults. */
-const char *avp_varname[] = {
+const char *avt_varname[] = {
   "CurrentTransportActions",
   "PossibleRecordQualityModes",
   "PlaybackStorageMedium",
@@ -51,17 +56,36 @@ const char *avp_varname[] = {
   "TransportPlaySpeed"
 };
 
-char tvp_varval[TV_PICTURE_VARCOUNT][TV_MAX_VAL_LEN];
-const char *tvp_varval_def[] = {
+char avt_varval[SVC_AV_TRANSPORT_VARCOUNT][TV_MAX_VAL_LEN];
+const char *avt_varval_def[] = {
 "Play,Stop", "5", "5", "5", "5",
 "5", "5", "5", "5", "OK",
-"5", "5", "00:04:00", "5", "5",
+"5", "5", "", "5", "5",
 "NO_MEDIA_PRESENT", "5", "5", "5", "5",
 "NORMAL", "5", "5", "5", "5",
 "5", "5", "5", "5", "1"
 };
 
 
+const char *cm_varname[] = {
+  "SinkProtocolInfo",
+  "A_ARG_TYPE_RcsID",
+  "A_ARG_TYPE_ConnectionManager",
+  "A_ARG_TYPE_Direction",
+  "CurrentConnectionIDs",
+  "A_ARG_TYPE_AVTransportID",
+  "A_ARG_TYPE_ProtocolInfo",
+  "A_ARG_TYPE_ConnectionStatus",
+  "A_ARG_TYPE_ConnectionID",
+  "SourceProtocolInfo",
+};
+char cm_varval[SVC_CONNECTION_MANAGER_VARCOUNT][TV_MAX_VAL_LEN];
+const char *cm_varval_def[] = {
+"http-get:*:audio/mpeg:*",
+"5", "5", "5", "5",
+"Play,Stop", "5", "5", "5",
+"http-get:*:audio/mpeg:*"
+};
 
 /*! The amount of time (in seconds) before advertisements will expire. */
 int default_advr_expire = 100;
@@ -98,35 +122,35 @@ static int SetServiceTable(
 			tv_service_table[SERVICE_RENDERING_CONTROL].VariableName[i]
 			    = rc_varname[i];
 			tv_service_table[SERVICE_RENDERING_CONTROL].VariableStrVal[i]
-			    = tvc_varval[i];
+			    = rc_varval[i];
 			strcpy(tv_service_table[SERVICE_RENDERING_CONTROL].
-				VariableStrVal[i], tvc_varval_def[i]);
+				VariableStrVal[i], rc_varval_def[i]);
 		}
 		break;
 	case SERVICE_AV_TRANSPORT:
-		out->VariableCount = TV_PICTURE_VARCOUNT;
+		out->VariableCount = SVC_AV_TRANSPORT_VARCOUNT;
 		for (i = 0;
 		     i < tv_service_table[SERVICE_AV_TRANSPORT].VariableCount;
 		     i++) {
 			tv_service_table[SERVICE_AV_TRANSPORT].VariableName[i] =
-			    avp_varname[i];
+			    avt_varname[i];
 			tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[i] =
-			    tvp_varval[i];
+			    avt_varval[i];
 			strcpy(tv_service_table[SERVICE_AV_TRANSPORT].
-				VariableStrVal[i], tvp_varval_def[i]);
+				VariableStrVal[i], avt_varval_def[i]);
 		}
 		break;
 	case SERVICE_CONNECTION_MANAGER:
-		out->VariableCount = TV_PICTURE_VARCOUNT;
+		out->VariableCount = SVC_CONNECTION_MANAGER_VARCOUNT;
 		for (i = 0;
 		     i < tv_service_table[SERVICE_CONNECTION_MANAGER].VariableCount;
 		     i++) {
 			tv_service_table[SERVICE_CONNECTION_MANAGER].VariableName[i] =
-			    avp_varname[i];
+			    cm_varname[i];
 			tv_service_table[SERVICE_CONNECTION_MANAGER].VariableStrVal[i] =
-			    tvp_varval[i];
+			    cm_varval[i];
 			strcpy(tv_service_table[SERVICE_CONNECTION_MANAGER].
-				VariableStrVal[i], tvp_varval_def[i]);
+				VariableStrVal[i], cm_varval_def[i]);
 		}
 		break;
 
@@ -142,12 +166,18 @@ int TvDeviceStateTableInit(char *DescDocURL)
 {
 	IXML_Document *DescDoc = NULL;
 	int ret = UPNP_E_SUCCESS;
-	char *servid_ctrl = NULL;
-	char *evnturl_ctrl = NULL;
-	char *ctrlurl_ctrl = NULL;
-	char *servid_pict = NULL;
-	char *evnturl_pict = NULL;
-	char *ctrlurl_pict = NULL;
+	char *servid_rc = NULL;
+	char *evnturl_rc = NULL;
+	char *ctrlurl_rc = NULL;
+
+	char *servid_avt = NULL;
+	char *evnturl_avt = NULL;
+	char *ctrlurl_avt = NULL;
+
+  char *servid_cm = NULL;
+  char *evnturl_cm = NULL;
+  char * ctrlurl_cm = NULL;
+
 	char *udn = NULL;
 
 	/*Download description document */
@@ -161,49 +191,71 @@ int TvDeviceStateTableInit(char *DescDocURL)
 	/* Find the Tv Control Service identifiers */
 	if (!SampleUtil_FindAndParseService(DescDoc, DescDocURL,
 					    TvServiceType[SERVICE_RENDERING_CONTROL],
-					    &servid_ctrl, &evnturl_ctrl,
-					    &ctrlurl_ctrl)) {
+					    &servid_rc, &evnturl_rc,
+					    &ctrlurl_rc)) {
 		SampleUtil_Print("TvDeviceStateTableInit -- Error: Could not find Service: %s\n",
 				 TvServiceType[SERVICE_RENDERING_CONTROL]);
 		ret = UPNP_E_INVALID_DESC;
 		goto error_handler;
 	}
 	/* set control service table */
-	SetServiceTable(SERVICE_RENDERING_CONTROL, udn, servid_ctrl,
+	SetServiceTable(SERVICE_RENDERING_CONTROL, udn, servid_rc,
 			TvServiceType[SERVICE_RENDERING_CONTROL],
 			&tv_service_table[SERVICE_RENDERING_CONTROL]);
 
 	/* Find the Tv Picture Service identifiers */
 	if (!SampleUtil_FindAndParseService(DescDoc, DescDocURL,
 					    TvServiceType[SERVICE_AV_TRANSPORT],
-					    &servid_pict, &evnturl_pict,
-					    &ctrlurl_pict)) {
+					    &servid_avt, &evnturl_avt,
+					    &ctrlurl_avt)) {
 		SampleUtil_Print("TvDeviceStateTableInit -- Error: Could not find Service: %s\n",
 				 TvServiceType[SERVICE_AV_TRANSPORT]);
 		ret = UPNP_E_INVALID_DESC;
 		goto error_handler;
 	}
 	/* set picture service table */
-	SetServiceTable(SERVICE_AV_TRANSPORT, udn, servid_pict,
+	SetServiceTable(SERVICE_AV_TRANSPORT, udn, servid_avt,
 			TvServiceType[SERVICE_AV_TRANSPORT],
 			&tv_service_table[SERVICE_AV_TRANSPORT]);
+
+	/* Find the Tv Picture Service identifiers */
+	if (!SampleUtil_FindAndParseService(DescDoc, DescDocURL,
+					    TvServiceType[SERVICE_CONNECTION_MANAGER],
+					    &servid_cm, &evnturl_cm,
+					    &ctrlurl_cm)) {
+		SampleUtil_Print("TvDeviceStateTableInit -- Error: Could not find Service: %s\n",
+				 TvServiceType[SERVICE_CONNECTION_MANAGER]);
+		ret = UPNP_E_INVALID_DESC;
+		goto error_handler;
+	}
+	/* set picture service table */
+	SetServiceTable(SERVICE_CONNECTION_MANAGER, udn, servid_cm,
+			TvServiceType[SERVICE_CONNECTION_MANAGER],
+			&tv_service_table[SERVICE_CONNECTION_MANAGER]);
+
 
 error_handler:
 	/* clean up */
 	if (udn)
 		free(udn);
-	if (servid_ctrl)
-		free(servid_ctrl);
-	if (evnturl_ctrl)
-		free(evnturl_ctrl);
-	if (ctrlurl_ctrl)
-		free(ctrlurl_ctrl);
-	if (servid_pict)
-		free(servid_pict);
-	if (evnturl_pict)
-		free(evnturl_pict);
-	if (ctrlurl_pict)
-		free(ctrlurl_pict);
+	if (servid_rc)
+		free(servid_rc);
+	if (evnturl_rc)
+		free(evnturl_rc);
+	if (ctrlurl_rc)
+		free(ctrlurl_rc);
+	if (servid_avt)
+		free(servid_avt);
+	if (evnturl_avt)
+		free(evnturl_avt);
+	if (ctrlurl_avt)
+		free(ctrlurl_avt);
+  if(servid_cm)
+    free(servid_cm);
+  if(evnturl_cm)
+    free(evnturl_cm);
+  if(ctrlurl_cm)
+    free(ctrlurl_cm);
 	if (DescDoc)
 		ixmlDocument_free(DescDoc);
 

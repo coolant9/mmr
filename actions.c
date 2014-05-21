@@ -37,7 +37,7 @@ int SetActionTable(int serviceType, struct RendererService *out)
 		out->ActionNames[1] = "GetProtocolInfo";
 		out->ActionNames[2] = "GetCurrentConnectionIDs";
 		out->actions[0] = MicroMediaPlay;
-		out->actions[1] = MicroMediaPlay;
+		out->actions[1] = GetProtocolInfo;
 		out->actions[2] = MicroMediaPlay;
 		return 1;
 	}
@@ -93,6 +93,30 @@ int GetTransportInfo(IXML_Document * in, IXML_Document **out,
 	/* lock state mutex */
 	ithread_mutex_lock(&MicroMediaRendererMutex);
 
+  enum mpd_state mstate = player_state();
+
+  switch(mstate)
+  {
+    case MPD_STATE_PLAY:
+      strcpy(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15],
+          "PLAYING");
+      break;
+    case MPD_STATE_STOP:
+      strcpy(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15],
+          "STOPPED");
+      break;
+    case MPD_STATE_UNKNOWN:
+      strcpy(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15],
+          "TRANSITIONING");
+      break;
+    case MPD_STATE_PAUSE:
+      strcpy(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15],
+          "PAUSED_PLAYBACK");
+      break;
+
+  }
+
+
   response_node = UpnpMakeActionResponse("GetTransportInfo",
       TvServiceType[SERVICE_AV_TRANSPORT],
       3,
@@ -114,21 +138,39 @@ int GetPositionInfo(IXML_Document * in, IXML_Document **out,
     const char**errorString){
   IXML_Document *response_node = NULL;
 
+  struct song_status* sstatus = update_counters();
 	/* lock state mutex */
 	ithread_mutex_lock(&MicroMediaRendererMutex);
+
+  if(sstatus!=NULL)
+  {
+    sprintf(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[11],
+        "%02d:%02d:%02d",
+        sstatus->elapsed_duration/3600,
+        sstatus->elapsed_duration/60,
+        sstatus->elapsed_duration%60);
+
+    sprintf(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[12],
+        "%02d:%02d:%02d",
+        sstatus->total_duration/3600,
+        sstatus->total_duration/60,
+        sstatus->total_duration%60);
+    free(sstatus);
+  }
 
   response_node = UpnpMakeActionResponse("GetPositionInfo",
       TvServiceType[SERVICE_AV_TRANSPORT],
       8,
       "Track", "1",
-      "TrackDuration", "0:04:00",
+      "TrackDuration",
+      tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[12],
       "TrackMetaData", "test.mp3",
       "TrackURI",
       tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[27],
       "RelTime",
-      "00:01:00",
+      tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[11],
       "AbsTime",
-      "00:01:00",
+      tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[11],
       "RelCount",
       "1",
       "AbsCount",
@@ -317,4 +359,27 @@ int GetVolume(IXML_Document * in, IXML_Document **out,
   return UPNP_E_SUCCESS;
 }
 
+//Connection Manager Actions
+int GetProtocolInfo(IXML_Document * in, IXML_Document **out,
+    const char**errorString)
+{
+  IXML_Document *response_node = NULL;
 
+	/* lock state mutex */
+	ithread_mutex_lock(&MicroMediaRendererMutex);
+
+  response_node = UpnpMakeActionResponse("GetProtocolInfo",
+      TvServiceType[SERVICE_CONNECTION_MANAGER],
+      2,
+      "Source",
+      tv_service_table[SERVICE_CONNECTION_MANAGER].VariableStrVal[0],
+      "Sink",
+      tv_service_table[SERVICE_CONNECTION_MANAGER].VariableStrVal[9]
+      );
+
+	ithread_mutex_unlock(&MicroMediaRendererMutex);
+  *out = response_node;
+  printf("%s", ixmlPrintDocument(*out));
+  return UPNP_E_SUCCESS;
+
+}

@@ -30,7 +30,9 @@ ithread_mutex_t MicroMediaRendererMutex;
 #define TV_MAX_VAL_LEN 1024
 
 /*! Number of picture variables */
-#define TV_PICTURE_VARCOUNT   30
+#define SVC_AV_TRANSPORT_VARCOUNT   30
+
+#define SVC_CONNECTION_MANAGER_VARCOUNT 10
 
 #define TV_CONTROL_POWER	0
 

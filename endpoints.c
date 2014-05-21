@@ -17,6 +17,52 @@ void getstreamfrompls(const char *URL, char * stream)
   }
 }
 
+enum mpd_state player_state()
+{
+  struct mpd_connection* conn=NULL;
+  enum mpd_state retVal;
+  conn = mpd_connection_new("192.168.1.2", 6600, 0);
+  if(conn != NULL)
+  {
+    struct mpd_status *ms = NULL;
+    ms = mpd_run_status(conn);
+    if (ms!=NULL)
+    {
+      retVal = mpd_status_get_state(ms);
+      printf("player_state : %d", retVal);
+      mpd_status_free(ms);
+    }
+  }
+  return retVal;
+}
+
+struct song_status * update_counters()
+{
+  struct song_status* retVal = NULL;
+  struct mpd_connection* conn=NULL;
+  conn = mpd_connection_new("192.168.1.2", 6600, 0);
+  if(conn != NULL)
+  {
+    struct mpd_status *ms = NULL;
+    ms = mpd_run_status(conn);
+    if (ms!=NULL)
+    {
+      retVal = malloc(sizeof(struct song_status));
+      unsigned int total_time = mpd_status_get_total_time(ms);
+      unsigned int elapsed_time = mpd_status_get_elapsed_time(ms);
+      mpd_status_free(ms);
+      retVal->elapsed_duration = elapsed_time;
+      retVal->total_duration = total_time;
+      printf("Elapsed = %d, Total = %d", elapsed_time, total_time);
+    }
+    else
+    {
+      printf("Unablt to get counters");
+    }
+  }
+  return retVal;
+}
+
 bool play(const char *streamURL){
   bool retval = false;
   struct mpd_connection* conn;
