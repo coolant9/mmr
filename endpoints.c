@@ -20,7 +20,7 @@ void getstreamfrompls(const char *URL, char * stream)
 enum mpd_state player_state()
 {
   struct mpd_connection* conn=NULL;
-  enum mpd_state retVal;
+  enum mpd_state retVal = MPD_STATE_UNKNOWN;
   conn = mpd_connection_new("192.168.1.2", 6600, 0);
   if(conn != NULL)
   {
@@ -150,7 +150,7 @@ int pause()
   conn = mpd_connection_new("192.168.1.2", 6600, 0);
   if(mpd_connection_get_error(conn) != MPD_ERROR_SUCCESS)
   {
-    retval = mpd_send_toggle_pause(conn);
+    retval = mpd_run_toggle_pause(conn);
   }
   return retval;
 }

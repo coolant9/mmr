@@ -106,8 +106,6 @@ int GetTransportInfo(IXML_Document * in, IXML_Document **out,
           "STOPPED");
       break;
     case MPD_STATE_UNKNOWN:
-      strcpy(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15],
-          "TRANSITIONING");
       break;
     case MPD_STATE_PAUSE:
       strcpy(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15],
@@ -270,7 +268,7 @@ int Pause(IXML_Document * in, IXML_Document **out,
 int Stop(IXML_Document * in, IXML_Document **out,
     const char**errorString){
   IXML_Document *response_node = NULL;
-  response_node = UpnpMakeActionResponse("Play",
+  response_node = UpnpMakeActionResponse("Stop",
       TvServiceType[SERVICE_AV_TRANSPORT],
       0,
       NULL);
