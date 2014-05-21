@@ -32,6 +32,7 @@ enum mpd_state player_state()
       printf("player_state : %d", retVal);
       mpd_status_free(ms);
     }
+    mpd_connection_free(conn);
   }
   return retVal;
 }
@@ -59,6 +60,7 @@ struct song_status * update_counters()
     {
       printf("Unablt to get counters");
     }
+    mpd_connection_free(conn);
   }
   return retVal;
 }
@@ -139,6 +141,7 @@ int stop()
   if(mpd_connection_get_error(conn) != MPD_ERROR_SUCCESS)
   {
     retval = mpd_send_stop(conn);
+    mpd_connection_free(conn);
   }
   return retval;
 }
@@ -151,6 +154,7 @@ int pause()
   if(mpd_connection_get_error(conn) != MPD_ERROR_SUCCESS)
   {
     retval = mpd_run_toggle_pause(conn);
+    mpd_connection_free(conn);
   }
   return retval;
 }
