@@ -65,7 +65,8 @@ struct song_status * update_counters()
   return retVal;
 }
 
-bool play(const char *streamURL){
+bool update_playlist(const char *streamURL)
+{
   bool retval = false;
   struct mpd_connection* conn;
   conn = mpd_connection_new("192.168.1.2", 6600, 0);
@@ -83,25 +84,17 @@ bool play(const char *streamURL){
       strcpy(stream, streamURL);
     }
     retval = mpd_run_add(conn, stream);
+  }
+  return retval;
+}
 
-    struct mpd_song *songInfo;
-    songInfo = mpd_run_get_queue_song_pos(conn, 0);
-    if (songInfo != NULL){
-    unsigned int duration = mpd_song_get_duration(songInfo);
-
-    printf("DURATION:%d", duration);
-
-    free(songInfo);
-    }
-    else
-    {
-      printf("Could not fetch duration");
-    }
-
-    if(retval)
-    {
-      retval = mpd_send_play(conn);
-    }
+bool play(const char *streamURL){
+  bool retval = false;
+  struct mpd_connection* conn;
+  conn = mpd_connection_new("192.168.1.2", 6600, 0);
+  if(conn != NULL)
+  {
+    retval = mpd_send_play(conn);
     mpd_connection_free(conn);
   }
   else{
@@ -138,7 +131,7 @@ int stop()
   bool retval = false;
   struct mpd_connection* conn;
   conn = mpd_connection_new("192.168.1.2", 6600, 0);
-  if(mpd_connection_get_error(conn) != MPD_ERROR_SUCCESS)
+  if(conn != NULL)
   {
     retval = mpd_send_stop(conn);
     mpd_connection_free(conn);
@@ -151,10 +144,14 @@ int pause()
   bool retval = false;
   struct mpd_connection* conn;
   conn = mpd_connection_new("192.168.1.2", 6600, 0);
-  if(mpd_connection_get_error(conn) != MPD_ERROR_SUCCESS)
+  if(conn != NULL)
   {
-    retval = mpd_run_toggle_pause(conn);
+    printf("pausing");
+    retval = mpd_run_pause(conn, 1);
     mpd_connection_free(conn);
+  }
+  else{
+    printf("not pausing");
   }
   return retval;
 }

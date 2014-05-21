@@ -200,6 +200,7 @@ int SetAVTransportURI(IXML_Document * in, IXML_Document **out,
   strcpy(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15], "STOPPED");
 
 	ithread_mutex_unlock(&MicroMediaRendererMutex);
+  update_playlist(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[27]);
 
   free(value);
 
@@ -244,20 +245,6 @@ int Pause(IXML_Document * in, IXML_Document **out,
       TvServiceType[SERVICE_AV_TRANSPORT],
       0,
       NULL);
-
-	/* lock state mutex */
-	ithread_mutex_lock(&MicroMediaRendererMutex);
-
-  if(strcmp(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15],
-        "PLAYING") == 0){
-    strcpy(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15], "PAUSED_PLAYBACK");
-  }
-  else
-  {
-    strcpy(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15], "PLAYING");
-  }
-
-	ithread_mutex_unlock(&MicroMediaRendererMutex);
 
   pause();
 
