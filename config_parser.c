@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <getopt.h>
 #include <malloc.h>
+#include <string.h>
 #include "config_parser.h"
 #include "common.h"
 

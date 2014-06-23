@@ -78,7 +78,7 @@ bool update_playlist(const char *streamURL)
     printf("[stream] : %s", streamURL);
     if ( strstr(streamURL, "shoutcast") != NULL)
     {
-      getstreamfrompls(streamURL, &stream);
+      getstreamfrompls(streamURL, stream);
     }
     else
     {
