@@ -1,4 +1,5 @@
 #include "endpoints.h"
+#include "common.h"
 
 void getstreamfrompls(const char *URL, char * stream)
 {
@@ -21,7 +22,7 @@ enum mpd_state player_state()
 {
   struct mpd_connection* conn=NULL;
   enum mpd_state retVal = MPD_STATE_UNKNOWN;
-  conn = mpd_connection_new("192.168.1.2", 6600, 0);
+  conn = mpd_connection_new(config->address_mpd, config->mpd_port, 0);
   if(conn != NULL)
   {
     struct mpd_status *ms = NULL;
@@ -41,7 +42,7 @@ struct song_status * update_counters()
 {
   struct song_status* retVal = NULL;
   struct mpd_connection* conn=NULL;
-  conn = mpd_connection_new("192.168.1.2", 6600, 0);
+  conn = mpd_connection_new(config->address_mpd, config->mpd_port, 0);
   if(conn != NULL)
   {
     struct mpd_status *ms = NULL;
@@ -69,7 +70,7 @@ bool update_playlist(const char *streamURL)
 {
   bool retval = false;
   struct mpd_connection* conn;
-  conn = mpd_connection_new("192.168.1.2", 6600, 0);
+  conn = mpd_connection_new(config->address_mpd, config->mpd_port, 0);
   if(conn != NULL)
   {
     mpd_run_clear(conn);
@@ -91,7 +92,7 @@ bool update_playlist(const char *streamURL)
 bool play(const char *streamURL){
   bool retval = false;
   struct mpd_connection* conn;
-  conn = mpd_connection_new("192.168.1.2", 6600, 0);
+  conn = mpd_connection_new(config->address_mpd, config->mpd_port, 0);
   if(conn != NULL)
   {
     retval = mpd_send_play(conn);
@@ -130,7 +131,7 @@ int stop()
 {
   bool retval = false;
   struct mpd_connection* conn;
-  conn = mpd_connection_new("192.168.1.2", 6600, 0);
+  conn = mpd_connection_new(config->address_mpd, config->mpd_port, 0);
   if(conn != NULL)
   {
     retval = mpd_send_stop(conn);
@@ -143,7 +144,7 @@ int pause()
 {
   bool retval = false;
   struct mpd_connection* conn;
-  conn = mpd_connection_new("192.168.1.2", 6600, 0);
+  conn = mpd_connection_new(config->address_mpd, config->mpd_port, 0);
   if(conn != NULL)
   {
     printf("pausing");

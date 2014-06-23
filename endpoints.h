@@ -1,10 +1,3 @@
-//
-// Copyright (c) 2011 and onwards Instart Inc. All rights reserved.
-//
-// Primary Owner: faskiri
-// Secondary Owner:
-//
-
 #ifndef _HOME_GSALUJA_PROJECTS_COOLANT_UPNP_MICRO_MEDIA_RENDERER_ENDPOINTS.H
 #define _HOME_GSALUJA_PROJECTS_COOLANT_UPNP_MICRO_MEDIA_RENDERER_ENDPOINTS.H
 

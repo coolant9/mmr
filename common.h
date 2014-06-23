@@ -3,6 +3,7 @@
 
 #include "ithread.h"
 #include "upnp.h"
+#include "config_parser.h"
 
 /*! Mutex for protecting the global state table data
  * in a multi-threaded, asynchronous environment.
@@ -10,6 +11,8 @@
  * or writing the state table data. */
 ithread_mutex_t MicroMediaRendererMutex;
 
+//Configuration for the program.
+struct program_config *config;
 
 //#define NAME_SIZE
 #define TV_MAXVARS 30
@@ -35,5 +38,9 @@ ithread_mutex_t MicroMediaRendererMutex;
 #define SVC_CONNECTION_MANAGER_VARCOUNT 10
 
 #define TV_CONTROL_POWER	0
+
+//Configuration
+#define MPD_CONTROL_ADDR "127.0.0.1"
+#define MPD_CONTROL_PORT 6600
 
 #endif // _HOME_GSALUJA_PROJECTS_COOLANT_UPNP_MICRO_MEDIA_RENDERER_COMMON.H

@@ -1,8 +1,9 @@
+#include <assert.h>
 #include "micro_media_renderer.h"
 #include "common.h"
 #include "requests.h"
 #include "actions.h"
-#include <assert.h>
+#include "config_parser.h"
 
 //from common.h
 extern ithread_mutex_t MicroMediaRendererMutex;
@@ -313,38 +314,18 @@ int media_renderer_main(int argc, char *argv[])
 	int i = 0;
 
 	SampleUtil_Initialize(linux_print);
-	/* Parse options */
-	for (i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "-ip") == 0) {
-			ip_address = argv[++i];
-		} else if (strcmp(argv[i], "-port") == 0) {
-			sscanf(argv[++i], "%u", &portTemp);
-		} else if (strcmp(argv[i], "-desc") == 0) {
-			desc_doc_name = argv[++i];
-		} else if (strcmp(argv[i], "-webdir") == 0) {
-			web_dir_path = argv[++i];
-		} else if (strcmp(argv[i], "-help") == 0) {
-			SampleUtil_Print("Usage: %s -ip ipaddress -port port"
-					 " -desc desc_doc_name -webdir web_dir_path"
-					 " -help (this message)\n", argv[0]);
-			SampleUtil_Print
-			    ("\tipaddress:     IP address of the device"
-			     " (must match desc. doc)\n"
-			     "\t\te.g.: 192.168.0.4\n"
-			     "\tport:          Port number to use for"
-			     " receiving UPnP messages (must match desc. doc)\n"
-			     "\t\te.g.: 5431\n"
-			     "\tdesc_doc_name: name of device description document\n"
-			     "\t\te.g.: tvdevicedesc.xml\n"
-			     "\tweb_dir_path: Filesystem path where web files"
-			     " related to the device are stored\n"
-			     "\t\te.g.: /upnp/sample/tvdevice/web\n");
-			return 1;
-		}
-	}
-	port = (unsigned short)portTemp;
-	return MicroMediaRendererStart(ip_address, port, desc_doc_name, web_dir_path,
-			     linux_print);
+  config = parse_command_line_parameters(argc, argv);
+  dump_current_values(config);
+  if (config==NULL)
+  {
+    return 1;
+  }
+  return MicroMediaRendererStart(
+      config->ip_address,
+      config->port,
+      "device-description.xml",
+      config->webdir,
+      linux_print);
 }
 
 //Called by renderer main

@@ -1,0 +1,20 @@
+Micro Media Rederer.
+
+Extremely light weight implementation of upnp's media renderer profile.
+Built for extremely lean hardware, like a linux based router with 32MB RAM.
+
+
+It implements the AVTransport, Connection_manager and rendering_control services.
+The actual play happens through an instance of mpd.
+The configuration exists in mmr.conf
+
+Homepage:
+http://coolantz.com/products/micromediarenderer
+
+
+Configure:
+CFLAGS="-I <path to custom includes>" LDFLAGS="-L <path to custom libs>" ./configure
+CFLAGS="-I ../stage/include -I ../stage/include/upnp" LDFLAGS="-L ../stage/lib" ./configure
+
+Build:
+make

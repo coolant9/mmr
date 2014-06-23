@@ -52,7 +52,8 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_micro_media_renderer_OBJECTS = micro_media_renderer_main.$(OBJEXT) \
 	sample_util.$(OBJEXT) micro_media_renderer.$(OBJEXT) \
-	requests.$(OBJEXT) actions.$(OBJEXT) endpoints.$(OBJEXT)
+	requests.$(OBJEXT) actions.$(OBJEXT) endpoints.$(OBJEXT) \
+	config_parser.$(OBJEXT)
 micro_media_renderer_OBJECTS = $(am_micro_media_renderer_OBJECTS)
 micro_media_renderer_LDADD = $(LDADD)
 DEFAULT_INCLUDES = -I.@am__isrc@
@@ -174,12 +175,14 @@ micro_media_renderer_SOURCES = micro_media_renderer.h \
 						actions.h \
 						common.h \
 						endpoints.h \
+						config_parser.h \
 						micro_media_renderer_main.c \
 						sample_util.c \
 						micro_media_renderer.c \
 						requests.c \
 						actions.c \
-					  endpoints.c
+					  endpoints.c \
+						config_parser.c
 
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
@@ -283,6 +286,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/actions.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/config_parser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/endpoints.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/micro_media_renderer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/micro_media_renderer_main.Po@am__quote@
