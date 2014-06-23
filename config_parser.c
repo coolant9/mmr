@@ -48,7 +48,7 @@ char *alloc_and_copy(char *destination, char *source){
   {
     free(destination);
   }
-  unsigned int len = strnlen(source) + 1;
+  unsigned int len = strlen(source) + 1;
   destination = (char *)malloc(len*sizeof(char));
   if(destination != NULL)
   {
