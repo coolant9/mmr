@@ -166,10 +166,10 @@ void dump_current_values(struct program_config * config)
   printf("mpd_port:%d\r\n", config->mpd_port);
 }
 
-//#ifdef X
-//int main(int argc, char *argv[])
-//{
-//  struct program_config * config = parse_command_line_parameters(argc, argv);
-//  dump_current_values(config);
-//}
-//#endif
+#ifdef X
+int main(int argc, char *argv[])
+{
+  struct program_config * config = parse_command_line_parameters(argc, argv);
+  dump_current_values(config);
+}
+#endif

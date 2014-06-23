@@ -315,7 +315,6 @@ int media_renderer_main(int argc, char *argv[])
 
 	SampleUtil_Initialize(linux_print);
   config = parse_command_line_parameters(argc, argv);
-  dump_current_values(config);
   if (config==NULL)
   {
     return 1;
