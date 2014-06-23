@@ -37,13 +37,13 @@ struct RendererService {
 	/*! . */
 	char ServiceType[NAME_SIZE];
 	/*! . */
-	const char *VariableName[TV_MAXVARS];
+	const char *VariableName[BUFF_MAXVARS];
 	/*! . */
-	char *VariableStrVal[TV_MAXVARS];
+	char *VariableStrVal[BUFF_MAXVARS];
 	/*! . */
-	const char *ActionNames[TV_MAXACTIONS];
+	const char *ActionNames[BUFF_MAXACTIONS];
 	/*! . */
-	upnp_action actions[TV_MAXACTIONS];
+	upnp_action actions[BUFF_MAXACTIONS];
 	/*! . */
 	int VariableCount;
 };

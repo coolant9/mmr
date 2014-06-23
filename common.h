@@ -15,8 +15,8 @@ ithread_mutex_t MicroMediaRendererMutex;
 struct program_config *config;
 
 //#define NAME_SIZE
-#define TV_MAXVARS 30
-#define TV_MAXACTIONS 14
+#define BUFF_MAXVARS 30
+#define BUFF_MAXACTIONS 14
 
 
 #define SERVICE_RENDERING_CONTROL 0
@@ -24,20 +24,18 @@ struct program_config *config;
 #define SERVICE_CONNECTION_MANAGER 2
 
 /*! Number of services. */
-#define TV_SERVICE_SERVCOUNT  3
+#define MMR_SERVICE_SERVCOUNT  3
 
 /*! Number of control variables */
 #define SVC_RENDERING_CONTROL_VARCOUNT   7
 
 /*! Max value length */
-#define TV_MAX_VAL_LEN 1024
+#define BUFF_MAX_VAL_LEN 1024
 
 /*! Number of picture variables */
 #define SVC_AV_TRANSPORT_VARCOUNT   30
 
 #define SVC_CONNECTION_MANAGER_VARCOUNT 10
-
-#define TV_CONTROL_POWER	0
 
 //Configuration
 #define MPD_CONTROL_ADDR "127.0.0.1"

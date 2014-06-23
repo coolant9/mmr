@@ -20,7 +20,7 @@ int TvDeviceHandleSubscriptionRequest(struct Upnp_Subscription_Request *sr_event
 	l_serviceId = sr_event->ServiceId;
 	l_udn = sr_event->UDN;
 	l_sid = sr_event->Sid;
-	for (i = 0; i < TV_SERVICE_SERVCOUNT; ++i) {
+	for (i = 0; i < MMR_SERVICE_SERVCOUNT; ++i) {
 		cmp1 = strcmp(l_udn, tv_service_table[i].UDN);
 		cmp2 = strcmp(l_serviceId, tv_service_table[i].ServiceId);
 		if (cmp1 == 0 && cmp2 == 0) {
@@ -72,7 +72,7 @@ int TvDeviceHandleGetVarRequest(struct Upnp_State_Var_Request *cgv_event)
 
 	ithread_mutex_lock(&MicroMediaRendererMutex);
 
-	for (i = 0; i < TV_SERVICE_SERVCOUNT; i++) {
+	for (i = 0; i < MMR_SERVICE_SERVCOUNT; i++) {
 		/* check udn and service id */
 		const char *devUDN = cgv_event->DevUDN;
 		const char *serviceID = cgv_event->ServiceID;
@@ -143,7 +143,7 @@ int TvDeviceHandleActionRequest(struct Upnp_Action_Request *ca_event)
 	 * Each action name has an associated procedure stored in the
 	 * service table. These are set at initialization. */
 	for (i = 0;
-	     i < TV_MAXACTIONS && tv_service_table[service].ActionNames[i] != NULL;
+	     i < BUFF_MAXACTIONS && tv_service_table[service].ActionNames[i] != NULL;
 	     i++) {
 		if (!strcmp(actionName, tv_service_table[service].ActionNames[i])) {
 				retCode = tv_service_table[service].actions[i](

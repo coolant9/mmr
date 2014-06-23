@@ -19,7 +19,7 @@ const char *rc_varname[] = {
   "LastChange",
   "A_ARG_TYPE_PresetName" };
 
-char rc_varval[SVC_RENDERING_CONTROL_VARCOUNT][TV_MAX_VAL_LEN];
+char rc_varval[SVC_RENDERING_CONTROL_VARCOUNT][BUFF_MAX_VAL_LEN];
 const char *rc_varval_def[] = { "0", "0", "5", "20", "Master", "LC", "0" };
 
 /*! Global arrays for storing AVTransport Service variable names, values,
@@ -57,7 +57,7 @@ const char *avt_varname[] = {
   "TransportPlaySpeed"
 };
 
-char avt_varval[SVC_AV_TRANSPORT_VARCOUNT][TV_MAX_VAL_LEN];
+char avt_varval[SVC_AV_TRANSPORT_VARCOUNT][BUFF_MAX_VAL_LEN];
 const char *avt_varval_def[] = {
 "Play,Stop", "5", "5", "5", "5",
 "5", "5", "5", "5", "OK",
@@ -80,7 +80,7 @@ const char *cm_varname[] = {
   "A_ARG_TYPE_ConnectionID",
   "SourceProtocolInfo",
 };
-char cm_varval[SVC_CONNECTION_MANAGER_VARCOUNT][TV_MAX_VAL_LEN];
+char cm_varval[SVC_CONNECTION_MANAGER_VARCOUNT][BUFF_MAX_VAL_LEN];
 const char *cm_varval_def[] = {
 "http-get:*:audio/mpeg:*",
 "5", "5", "5", "5",
