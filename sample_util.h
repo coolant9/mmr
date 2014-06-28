@@ -53,14 +53,14 @@ extern "C" {
 #include <string.h>
 
 #ifdef SAMPLE_UTIL_C
-	/*! Service types for tv services. */
-	const char *TvServiceType[] = {
+	/*! Service types for mmr services. */
+	const char *MmrServiceType[] = {
 		"urn:schemas-upnp-org:service:RenderingControl:1",
 		"urn:schemas-upnp-org:service:AVTransport:1",
 		"urn:schemas-upnp-org:service:ConnectionManager:1"
 	};
 #else /* SAMPLE_UTIL_C */
-	extern const char *TvServiceType[];
+	extern const char *MmrServiceType[];
 #endif /* SAMPLE_UTIL_C */
 
 /* mutex to control displaying of events */

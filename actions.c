@@ -98,17 +98,17 @@ int GetTransportInfo(IXML_Document * in, IXML_Document **out,
   switch(mstate)
   {
     case MPD_STATE_PLAY:
-      strcpy(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15],
+      strcpy(mmr_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15],
           "PLAYING");
       break;
     case MPD_STATE_STOP:
-      strcpy(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15],
+      strcpy(mmr_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15],
           "STOPPED");
       break;
     case MPD_STATE_UNKNOWN:
       break;
     case MPD_STATE_PAUSE:
-      strcpy(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15],
+      strcpy(mmr_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15],
           "PAUSED_PLAYBACK");
       break;
 
@@ -116,14 +116,14 @@ int GetTransportInfo(IXML_Document * in, IXML_Document **out,
 
 
   response_node = UpnpMakeActionResponse("GetTransportInfo",
-      TvServiceType[SERVICE_AV_TRANSPORT],
+      MmrServiceType[SERVICE_AV_TRANSPORT],
       3,
       "CurrentTransportState",
-      tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15],
+      mmr_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15],
       "CurrentTransportStatus",
-      tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[9],
+      mmr_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[9],
       "CurrentSpeed",
-      tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[29]
+      mmr_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[29]
       );
 
 	ithread_mutex_unlock(&MicroMediaRendererMutex);
@@ -142,13 +142,13 @@ int GetPositionInfo(IXML_Document * in, IXML_Document **out,
 
   if(sstatus!=NULL)
   {
-    sprintf(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[11],
+    sprintf(mmr_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[11],
         "%02d:%02d:%02d",
         sstatus->elapsed_duration/3600,
         sstatus->elapsed_duration/60,
         sstatus->elapsed_duration%60);
 
-    sprintf(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[12],
+    sprintf(mmr_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[12],
         "%02d:%02d:%02d",
         sstatus->total_duration/3600,
         sstatus->total_duration/60,
@@ -157,18 +157,18 @@ int GetPositionInfo(IXML_Document * in, IXML_Document **out,
   }
 
   response_node = UpnpMakeActionResponse("GetPositionInfo",
-      TvServiceType[SERVICE_AV_TRANSPORT],
+      MmrServiceType[SERVICE_AV_TRANSPORT],
       8,
       "Track", "1",
       "TrackDuration",
-      tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[12],
+      mmr_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[12],
       "TrackMetaData", "test.mp3",
       "TrackURI",
-      tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[27],
+      mmr_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[27],
       "RelTime",
-      tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[11],
+      mmr_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[11],
       "AbsTime",
-      tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[11],
+      mmr_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[11],
       "RelCount",
       "1",
       "AbsCount",
@@ -196,16 +196,16 @@ int SetAVTransportURI(IXML_Document * in, IXML_Document **out,
 	/* lock state mutex */
 	ithread_mutex_lock(&MicroMediaRendererMutex);
 
-  strcpy(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[27], value);
-  strcpy(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15], "STOPPED");
+  strcpy(mmr_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[27], value);
+  strcpy(mmr_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15], "STOPPED");
 
 	ithread_mutex_unlock(&MicroMediaRendererMutex);
-  update_playlist(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[27]);
+  update_playlist(mmr_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[27]);
 
   free(value);
 
   *out = UpnpMakeActionResponse("SetAVTransportURI",
-      TvServiceType[SERVICE_AV_TRANSPORT],
+      MmrServiceType[SERVICE_AV_TRANSPORT],
       0,
       NULL);
 
@@ -219,7 +219,7 @@ int Play(IXML_Document * in, IXML_Document **out,
 
   IXML_Document *response_node = NULL;
   response_node = UpnpMakeActionResponse("Play",
-      TvServiceType[SERVICE_AV_TRANSPORT],
+      MmrServiceType[SERVICE_AV_TRANSPORT],
       0,
       NULL);
 
@@ -229,8 +229,8 @@ int Play(IXML_Document * in, IXML_Document **out,
 	/* lock state mutex */
 	ithread_mutex_lock(&MicroMediaRendererMutex);
 
-  strcpy(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15], "PLAYING");
-  strcpy(buf, tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[27]);
+  strcpy(mmr_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15], "PLAYING");
+  strcpy(buf, mmr_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[27]);
 
 	ithread_mutex_unlock(&MicroMediaRendererMutex);
   play(buf);
@@ -242,7 +242,7 @@ int Pause(IXML_Document * in, IXML_Document **out,
     const char**errorString){
   IXML_Document *response_node = NULL;
   response_node = UpnpMakeActionResponse("Pause",
-      TvServiceType[SERVICE_AV_TRANSPORT],
+      MmrServiceType[SERVICE_AV_TRANSPORT],
       0,
       NULL);
 
@@ -256,14 +256,14 @@ int Stop(IXML_Document * in, IXML_Document **out,
     const char**errorString){
   IXML_Document *response_node = NULL;
   response_node = UpnpMakeActionResponse("Stop",
-      TvServiceType[SERVICE_AV_TRANSPORT],
+      MmrServiceType[SERVICE_AV_TRANSPORT],
       0,
       NULL);
 
 	/* lock state mutex */
 	ithread_mutex_lock(&MicroMediaRendererMutex);
 
-  strcpy(tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15], "STOPPED");
+  strcpy(mmr_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[15], "STOPPED");
 
 	ithread_mutex_unlock(&MicroMediaRendererMutex);
   stop();
@@ -271,7 +271,6 @@ int Stop(IXML_Document * in, IXML_Document **out,
   return UPNP_E_SUCCESS;
 }
 
-extern char tvc_varval;
 
 //Rendering Control Actions.
 
@@ -301,8 +300,8 @@ int SetVolume(IXML_Document * in, IXML_Document **out,
   for (i=0;i<SVC_RENDERING_CONTROL_VARCOUNT;i++)
   {
     printf("Name=%s,Value=%s\r\n",
-        tv_service_table[SERVICE_RENDERING_CONTROL].VariableName[i],
-        tv_service_table[SERVICE_RENDERING_CONTROL].VariableStrVal[i]);
+        mmr_service_table[SERVICE_RENDERING_CONTROL].VariableName[i],
+        mmr_service_table[SERVICE_RENDERING_CONTROL].VariableStrVal[i]);
   }
 
 
@@ -310,15 +309,15 @@ int SetVolume(IXML_Document * in, IXML_Document **out,
 	/* lock state mutex */
 	ithread_mutex_lock(&MicroMediaRendererMutex);
 
-  strcpy(tv_service_table[SERVICE_RENDERING_CONTROL].VariableStrVal[3], value);
-  strcpy(tv_service_table[SERVICE_RENDERING_CONTROL].VariableStrVal[5], buf);
+  strcpy(mmr_service_table[SERVICE_RENDERING_CONTROL].VariableStrVal[3], value);
+  strcpy(mmr_service_table[SERVICE_RENDERING_CONTROL].VariableStrVal[5], buf);
 
 	ithread_mutex_unlock(&MicroMediaRendererMutex);
 
   set_alsa_level(set_volume);
   IXML_Document *response_node = NULL;
   response_node = UpnpMakeActionResponse("SetVolume",
-      TvServiceType[SERVICE_RENDERING_CONTROL],
+      MmrServiceType[SERVICE_RENDERING_CONTROL],
       1,
       "CurrentVolume", value
       );
@@ -335,7 +334,7 @@ int GetVolume(IXML_Document * in, IXML_Document **out,
   char buff[1024];
   sprintf(buff, "%.0f", ((float)current_volume/38)*100);
   response_node = UpnpMakeActionResponse("GetVolume",
-      TvServiceType[SERVICE_RENDERING_CONTROL],
+      MmrServiceType[SERVICE_RENDERING_CONTROL],
       1,
       "CurrentVolume", buff
       );
@@ -354,12 +353,12 @@ int GetProtocolInfo(IXML_Document * in, IXML_Document **out,
 	ithread_mutex_lock(&MicroMediaRendererMutex);
 
   response_node = UpnpMakeActionResponse("GetProtocolInfo",
-      TvServiceType[SERVICE_CONNECTION_MANAGER],
+      MmrServiceType[SERVICE_CONNECTION_MANAGER],
       2,
       "Source",
-      tv_service_table[SERVICE_CONNECTION_MANAGER].VariableStrVal[0],
+      mmr_service_table[SERVICE_CONNECTION_MANAGER].VariableStrVal[0],
       "Sink",
-      tv_service_table[SERVICE_CONNECTION_MANAGER].VariableStrVal[9]
+      mmr_service_table[SERVICE_CONNECTION_MANAGER].VariableStrVal[9]
       );
 
 	ithread_mutex_unlock(&MicroMediaRendererMutex);

@@ -5,7 +5,7 @@
 /*! Device handle supplied by UPnP SDK. */
 UpnpDevice_Handle device_handle = -1;
 
-int TvDeviceHandleSubscriptionRequest(struct Upnp_Subscription_Request *sr_event)
+int MmrDeviceHandleSubscriptionRequest(struct Upnp_Subscription_Request *sr_event)
 {
 	unsigned int i = 0;
 	int cmp1 = 0;
@@ -21,19 +21,19 @@ int TvDeviceHandleSubscriptionRequest(struct Upnp_Subscription_Request *sr_event
 	l_udn = sr_event->UDN;
 	l_sid = sr_event->Sid;
 	for (i = 0; i < MMR_SERVICE_SERVCOUNT; ++i) {
-		cmp1 = strcmp(l_udn, tv_service_table[i].UDN);
-		cmp2 = strcmp(l_serviceId, tv_service_table[i].ServiceId);
+		cmp1 = strcmp(l_udn, mmr_service_table[i].UDN);
+		cmp2 = strcmp(l_serviceId, mmr_service_table[i].ServiceId);
 		if (cmp1 == 0 && cmp2 == 0) {
 #if 0
 			PropSet = NULL;
 
-			for (j = 0; j < tv_service_table[i].VariableCount; ++j) {
+			for (j = 0; j < mmr_service_table[i].VariableCount; ++j) {
 				/* add each variable to the property set */
 				/* for initial state dump */
 				UpnpAddToPropertySet(&PropSet,
-						     tv_service_table[i].
+						     mmr_service_table[i].
 						     VariableName[j],
-						     tv_service_table[i].
+						     mmr_service_table[i].
 						     VariableStrVal[j]);
 			}
 
@@ -48,11 +48,11 @@ int TvDeviceHandleSubscriptionRequest(struct Upnp_Subscription_Request *sr_event
 					       l_udn,
 					       l_serviceId,
 					       (const char **)
-					       tv_service_table[i].VariableName,
+					       mmr_service_table[i].VariableName,
 					       (const char **)
-					       tv_service_table
+					       mmr_service_table
 					       [i].VariableStrVal,
-					       tv_service_table[i].
+					       mmr_service_table[i].
 					       VariableCount, l_sid);
 		}
 	}
@@ -62,7 +62,7 @@ int TvDeviceHandleSubscriptionRequest(struct Upnp_Subscription_Request *sr_event
 	return 1;
 }
 
-int TvDeviceHandleGetVarRequest(struct Upnp_State_Var_Request *cgv_event)
+int MmrDeviceHandleGetVarRequest(struct Upnp_State_Var_Request *cgv_event)
 {
 	unsigned int i = 0;
 	int j = 0;
@@ -76,17 +76,17 @@ int TvDeviceHandleGetVarRequest(struct Upnp_State_Var_Request *cgv_event)
 		/* check udn and service id */
 		const char *devUDN = cgv_event->DevUDN;
 		const char *serviceID = cgv_event->ServiceID;
-		if (strcmp(devUDN, tv_service_table[i].UDN) == 0 &&
-		    strcmp(serviceID, tv_service_table[i].ServiceId) == 0) {
+		if (strcmp(devUDN, mmr_service_table[i].UDN) == 0 &&
+		    strcmp(serviceID, mmr_service_table[i].ServiceId) == 0) {
 			/* check variable name */
-			for (j = 0; j < tv_service_table[i].VariableCount; j++) {
+			for (j = 0; j < mmr_service_table[i].VariableCount; j++) {
 				const char *stateVarName =
 					cgv_event->StateVarName;
 				if (strcmp(stateVarName,
-					   tv_service_table[i].VariableName[j]) == 0) {
+					   mmr_service_table[i].VariableName[j]) == 0) {
 					getvar_succeeded = 1;
 					cgv_event->CurrentVal = ixmlCloneDOMString(
-						tv_service_table[i].VariableStrVal[j]);
+						mmr_service_table[i].VariableStrVal[j]);
 					break;
 				}
 			}
@@ -107,7 +107,7 @@ int TvDeviceHandleGetVarRequest(struct Upnp_State_Var_Request *cgv_event)
 	return cgv_event->ErrCode == UPNP_E_SUCCESS;
 }
 
-int TvDeviceHandleActionRequest(struct Upnp_Action_Request *ca_event)
+int MmrDeviceHandleActionRequest(struct Upnp_Action_Request *ca_event)
 {
 	/* Defaults if action not found. */
 	int action_found = 0;
@@ -125,17 +125,17 @@ int TvDeviceHandleActionRequest(struct Upnp_Action_Request *ca_event)
 	devUDN     = ca_event->DevUDN;
 	serviceID  = ca_event->ServiceID;
 	actionName = ca_event->ActionName;
-	if (strcmp(devUDN,    tv_service_table[SERVICE_RENDERING_CONTROL].UDN) == 0 &&
-	    strcmp(serviceID, tv_service_table[SERVICE_RENDERING_CONTROL].ServiceId) == 0) {
-		/* Request for action in the TvDevice Control Service. */
+	if (strcmp(devUDN,    mmr_service_table[SERVICE_RENDERING_CONTROL].UDN) == 0 &&
+	    strcmp(serviceID, mmr_service_table[SERVICE_RENDERING_CONTROL].ServiceId) == 0) {
+		/* Request for action in the MmrDevice RenderingControl Service. */
 		service = SERVICE_RENDERING_CONTROL;
-	} else if (strcmp(devUDN,       tv_service_table[SERVICE_AV_TRANSPORT].UDN) == 0 &&
-		   strcmp(serviceID, tv_service_table[SERVICE_AV_TRANSPORT].ServiceId) == 0) {
-		/* Request for action in the TvDevice Picture Service. */
+	} else if (strcmp(devUDN,       mmr_service_table[SERVICE_AV_TRANSPORT].UDN) == 0 &&
+		   strcmp(serviceID, mmr_service_table[SERVICE_AV_TRANSPORT].ServiceId) == 0) {
+		/* Request for action in the MmrDevice AVTransport Service. */
 		service = SERVICE_AV_TRANSPORT;
-	} else if (strcmp(devUDN,       tv_service_table[SERVICE_CONNECTION_MANAGER].UDN) == 0 &&
-		   strcmp(serviceID, tv_service_table[SERVICE_CONNECTION_MANAGER].ServiceId) == 0) {
-		/* Request for action in the TvDevice Picture Service. */
+	} else if (strcmp(devUDN,       mmr_service_table[SERVICE_CONNECTION_MANAGER].UDN) == 0 &&
+		   strcmp(serviceID, mmr_service_table[SERVICE_CONNECTION_MANAGER].ServiceId) == 0) {
+		/* Request for action in the MmrDevice ConnectionManager Service. */
 		service = SERVICE_CONNECTION_MANAGER;
 	}
 
@@ -143,10 +143,10 @@ int TvDeviceHandleActionRequest(struct Upnp_Action_Request *ca_event)
 	 * Each action name has an associated procedure stored in the
 	 * service table. These are set at initialization. */
 	for (i = 0;
-	     i < BUFF_MAXACTIONS && tv_service_table[service].ActionNames[i] != NULL;
+	     i < BUFF_MAXACTIONS && mmr_service_table[service].ActionNames[i] != NULL;
 	     i++) {
-		if (!strcmp(actionName, tv_service_table[service].ActionNames[i])) {
-				retCode = tv_service_table[service].actions[i](
+		if (!strcmp(actionName, mmr_service_table[service].ActionNames[i])) {
+				retCode = mmr_service_table[service].actions[i](
 					ca_event->ActionRequest,
 					&ca_event->ActionResult,
 					&errorString);

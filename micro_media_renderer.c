@@ -89,7 +89,7 @@ const char *cm_varval_def[] = {
 };
 
 /*! The amount of time (in seconds) before advertisements will expire. */
-int default_advr_expire = 100;
+int default_advr_expire = 10;
 
 
 
@@ -97,7 +97,7 @@ int default_advr_expire = 100;
  * \brief Initializes the service table for the specified service.
  */
 static int SetServiceTable(
-	/*! [in] one of SERVICE_RENDERING_CONTROL or, SERVICE_AV_TRANSPORT. */
+	/*! [in] one of SERVICE_RENDERING_CONTROL or, SERVICE_AV_TRANSPORT or SERVICE_CONNECTION_MANAGER. */
 	int serviceType,
 	/*! [in] UDN of device containing service. */
 	const char *UDN,
@@ -118,39 +118,39 @@ static int SetServiceTable(
 	case SERVICE_RENDERING_CONTROL:
 		out->VariableCount = SVC_RENDERING_CONTROL_VARCOUNT;
 		for (i = 0;
-		     i < tv_service_table[SERVICE_RENDERING_CONTROL].VariableCount;
+		     i < mmr_service_table[SERVICE_RENDERING_CONTROL].VariableCount;
 		     i++) {
-			tv_service_table[SERVICE_RENDERING_CONTROL].VariableName[i]
+			mmr_service_table[SERVICE_RENDERING_CONTROL].VariableName[i]
 			    = rc_varname[i];
-			tv_service_table[SERVICE_RENDERING_CONTROL].VariableStrVal[i]
+			mmr_service_table[SERVICE_RENDERING_CONTROL].VariableStrVal[i]
 			    = rc_varval[i];
-			strcpy(tv_service_table[SERVICE_RENDERING_CONTROL].
+			strcpy(mmr_service_table[SERVICE_RENDERING_CONTROL].
 				VariableStrVal[i], rc_varval_def[i]);
 		}
 		break;
 	case SERVICE_AV_TRANSPORT:
 		out->VariableCount = SVC_AV_TRANSPORT_VARCOUNT;
 		for (i = 0;
-		     i < tv_service_table[SERVICE_AV_TRANSPORT].VariableCount;
+		     i < mmr_service_table[SERVICE_AV_TRANSPORT].VariableCount;
 		     i++) {
-			tv_service_table[SERVICE_AV_TRANSPORT].VariableName[i] =
+			mmr_service_table[SERVICE_AV_TRANSPORT].VariableName[i] =
 			    avt_varname[i];
-			tv_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[i] =
+			mmr_service_table[SERVICE_AV_TRANSPORT].VariableStrVal[i] =
 			    avt_varval[i];
-			strcpy(tv_service_table[SERVICE_AV_TRANSPORT].
+			strcpy(mmr_service_table[SERVICE_AV_TRANSPORT].
 				VariableStrVal[i], avt_varval_def[i]);
 		}
 		break;
 	case SERVICE_CONNECTION_MANAGER:
 		out->VariableCount = SVC_CONNECTION_MANAGER_VARCOUNT;
 		for (i = 0;
-		     i < tv_service_table[SERVICE_CONNECTION_MANAGER].VariableCount;
+		     i < mmr_service_table[SERVICE_CONNECTION_MANAGER].VariableCount;
 		     i++) {
-			tv_service_table[SERVICE_CONNECTION_MANAGER].VariableName[i] =
+			mmr_service_table[SERVICE_CONNECTION_MANAGER].VariableName[i] =
 			    cm_varname[i];
-			tv_service_table[SERVICE_CONNECTION_MANAGER].VariableStrVal[i] =
+			mmr_service_table[SERVICE_CONNECTION_MANAGER].VariableStrVal[i] =
 			    cm_varval[i];
-			strcpy(tv_service_table[SERVICE_CONNECTION_MANAGER].
+			strcpy(mmr_service_table[SERVICE_CONNECTION_MANAGER].
 				VariableStrVal[i], cm_varval_def[i]);
 		}
 		break;
@@ -163,7 +163,7 @@ static int SetServiceTable(
 }
 
 
-int TvDeviceStateTableInit(char *DescDocURL)
+int MmrDeviceStateTableInit(char *DescDocURL)
 {
 	IXML_Document *DescDoc = NULL;
 	int ret = UPNP_E_SUCCESS;
@@ -183,56 +183,56 @@ int TvDeviceStateTableInit(char *DescDocURL)
 
 	/*Download description document */
 	if (UpnpDownloadXmlDoc(DescDocURL, &DescDoc) != UPNP_E_SUCCESS) {
-		SampleUtil_Print("TvDeviceStateTableInit -- Error Parsing %s\n",
+		SampleUtil_Print("MmrDeviceStateTableInit -- Error Parsing %s\n",
 				 DescDocURL);
 		ret = UPNP_E_INVALID_DESC;
 		goto error_handler;
 	}
 	udn = SampleUtil_GetFirstDocumentItem(DescDoc, "UDN");
-	/* Find the Tv Control Service identifiers */
+	/* Find the MMR RenderingControl Service identifiers */
 	if (!SampleUtil_FindAndParseService(DescDoc, DescDocURL,
-					    TvServiceType[SERVICE_RENDERING_CONTROL],
+					    MmrServiceType[SERVICE_RENDERING_CONTROL],
 					    &servid_rc, &evnturl_rc,
 					    &ctrlurl_rc)) {
-		SampleUtil_Print("TvDeviceStateTableInit -- Error: Could not find Service: %s\n",
-				 TvServiceType[SERVICE_RENDERING_CONTROL]);
+		SampleUtil_Print("MmrDeviceStateTableInit -- Error: Could not find Service: %s\n",
+				 MmrServiceType[SERVICE_RENDERING_CONTROL]);
 		ret = UPNP_E_INVALID_DESC;
 		goto error_handler;
 	}
 	/* set control service table */
 	SetServiceTable(SERVICE_RENDERING_CONTROL, udn, servid_rc,
-			TvServiceType[SERVICE_RENDERING_CONTROL],
-			&tv_service_table[SERVICE_RENDERING_CONTROL]);
+			MmrServiceType[SERVICE_RENDERING_CONTROL],
+			&mmr_service_table[SERVICE_RENDERING_CONTROL]);
 
-	/* Find the Tv Picture Service identifiers */
+	/* Find the MMR AVTransport Service identifiers */
 	if (!SampleUtil_FindAndParseService(DescDoc, DescDocURL,
-					    TvServiceType[SERVICE_AV_TRANSPORT],
+					    MmrServiceType[SERVICE_AV_TRANSPORT],
 					    &servid_avt, &evnturl_avt,
 					    &ctrlurl_avt)) {
-		SampleUtil_Print("TvDeviceStateTableInit -- Error: Could not find Service: %s\n",
-				 TvServiceType[SERVICE_AV_TRANSPORT]);
+		SampleUtil_Print("MmrDeviceStateTableInit -- Error: Could not find Service: %s\n",
+				 MmrServiceType[SERVICE_AV_TRANSPORT]);
 		ret = UPNP_E_INVALID_DESC;
 		goto error_handler;
 	}
 	/* set picture service table */
 	SetServiceTable(SERVICE_AV_TRANSPORT, udn, servid_avt,
-			TvServiceType[SERVICE_AV_TRANSPORT],
-			&tv_service_table[SERVICE_AV_TRANSPORT]);
+			MmrServiceType[SERVICE_AV_TRANSPORT],
+			&mmr_service_table[SERVICE_AV_TRANSPORT]);
 
-	/* Find the Tv Picture Service identifiers */
+	/* Find the Mmr ConnectionManager Service identifiers */
 	if (!SampleUtil_FindAndParseService(DescDoc, DescDocURL,
-					    TvServiceType[SERVICE_CONNECTION_MANAGER],
+					    MmrServiceType[SERVICE_CONNECTION_MANAGER],
 					    &servid_cm, &evnturl_cm,
 					    &ctrlurl_cm)) {
-		SampleUtil_Print("TvDeviceStateTableInit -- Error: Could not find Service: %s\n",
-				 TvServiceType[SERVICE_CONNECTION_MANAGER]);
+		SampleUtil_Print("MmrDeviceStateTableInit -- Error: Could not find Service: %s\n",
+				 MmrServiceType[SERVICE_CONNECTION_MANAGER]);
 		ret = UPNP_E_INVALID_DESC;
 		goto error_handler;
 	}
 	/* set picture service table */
 	SetServiceTable(SERVICE_CONNECTION_MANAGER, udn, servid_cm,
-			TvServiceType[SERVICE_CONNECTION_MANAGER],
-			&tv_service_table[SERVICE_CONNECTION_MANAGER]);
+			MmrServiceType[SERVICE_CONNECTION_MANAGER],
+			&mmr_service_table[SERVICE_CONNECTION_MANAGER]);
 
 
 error_handler:
@@ -268,16 +268,16 @@ int RendererCallbackEventHandler(Upnp_EventType EventType, void *Event,
 {
 	switch (EventType) {
 	case UPNP_EVENT_SUBSCRIPTION_REQUEST:
-		TvDeviceHandleSubscriptionRequest((struct
+		MmrDeviceHandleSubscriptionRequest((struct
 						   Upnp_Subscription_Request *)
 						  Event);
 		break;
 	case UPNP_CONTROL_GET_VAR_REQUEST:
-		TvDeviceHandleGetVarRequest((struct Upnp_State_Var_Request *)
+		MmrDeviceHandleGetVarRequest((struct Upnp_State_Var_Request *)
 					    Event);
 		break;
 	case UPNP_CONTROL_ACTION_REQUEST:
-		TvDeviceHandleActionRequest((struct Upnp_Action_Request *)
+		MmrDeviceHandleActionRequest((struct Upnp_Action_Request *)
 					    Event);
 		break;
 		/* ignore these cases, since this is not a control point */
@@ -294,7 +294,7 @@ int RendererCallbackEventHandler(Upnp_EventType EventType, void *Event,
 		break;
 	default:
 		SampleUtil_Print
-		    ("Error in TvDeviceCallbackEventHandler: unknown event type %d\n",
+		    ("Error in RendererCallbackEventHandler: unknown event type %d\n",
 		     EventType);
 	}
 	/* Print a summary of the event received */
@@ -385,7 +385,7 @@ int MicroMediaRendererStart(char *ip_address, unsigned short port,
 	} else {
 		SampleUtil_Print("RootDevice Registered\n"
 				 "Initializing State Table\n");
-		TvDeviceStateTableInit(desc_doc_url);
+		MmrDeviceStateTableInit(desc_doc_url);
 		SampleUtil_Print("State Table Initialized\n");
 		ret = UpnpSendAdvertisement(device_handle, default_advr_expire);
 		if (ret != UPNP_E_SUCCESS) {

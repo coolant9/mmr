@@ -28,7 +28,7 @@ typedef int (*upnp_action)(
 	/*! [out] Error string in case action was unsuccessful. */
 	const char **errorString);
 
-/*! Structure for storing Tv Service identifiers and state table. */
+/*! Structure for storing Mmr Service identifiers and state table. */
 struct RendererService {
 	/*! Universally Unique Device Name. */
 	char UDN[NAME_SIZE];
@@ -50,35 +50,35 @@ struct RendererService {
 
 
 /*! Global structure for storing the state table for this device. */
-struct RendererService tv_service_table[3];
+struct RendererService mmr_service_table[3];
 
 /*!
  * \brief Called during a subscription request callback.
  *
  * If the subscription request is for this device and either its
- * control service or picture service, then accept it.
+ * AVTransport, ConnectionManager or RenderingControl
  */
-int TvDeviceHandleSubscriptionRequest(
+int MmrDeviceHandleSubscriptionRequest(
 	/*! [in] The subscription request event structure. */
 	struct Upnp_Subscription_Request *sr_event);
 
 /*!
  * \brief Called during a get variable request callback.
  *
- * If the request is for this device and either its control service or
- * picture service, then respond with the variable value.
+ * If the request is for this device and either its AVTransport,
+ * ConnectionManager or RenderingControl, then respond with the variable value.
  */
-int TvDeviceHandleGetVarRequest(
+int MmrDeviceHandleGetVarRequest(
 	/*! [in,out] The control get variable request event structure. */
 	struct Upnp_State_Var_Request *cgv_event);
 
 /*!
  * \brief Called during an action request callback.
  *
- * If the request is for this device and either its control service
- * or picture service, then perform the action and respond.
+ * If the request is for this device and either its AVTransport
+ * RenderingControl or ConnectionManager, then perform the action and respond.
  */
-int TvDeviceHandleActionRequest(
+int MmrDeviceHandleActionRequest(
 	/*! [in,out] The control action request event structure. */
 	struct Upnp_Action_Request *ca_event);
 

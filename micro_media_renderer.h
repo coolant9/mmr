@@ -39,7 +39,7 @@ int MicroMediaRendererStart(
 	 * if zero, then a random number is used. */
 	unsigned short port,
 	/*! [in] name of description document.
-	 * may be NULL. Default is tvdevicedesc.xml. */
+	 * may be NULL. Default is device-description.xml. */
 	const char *desc_doc_name,
 	/*! [in] path of web directory.
 	 * may be NULL. Default is ./web (for Linux) or ../tvdevice/web. */
