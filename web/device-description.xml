@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root xmlns="urn:schemas-upnp-org:device-1-0" xmlns:dlna="urn:schemas-dlna-org:device-1-0">
+  <specVersion>
+    <major>1</major>
+    <minor>0</minor>
+  </specVersion>
+  <device>
+    <deviceType>urn:schemas-upnp-org:device:MediaRenderer:1</deviceType>
+    <friendlyName>Micro Media Renderer</friendlyName>
+    <manufacturer>Coolant</manufacturer>
+    <manufacturerURL>http://coolantz.com</manufacturerURL>
+    <modelDescription>Extremely lightweight Media Renderer program.</modelDescription>
+    <modelName>Micro Media Renderer</modelName>
+    <modelNumber>1.0</modelNumber>
+    <modelURL>http://coolantz.com/micromediarenderer/product.php</modelURL>
+    <serialNumber>123456789001</serialNumber>
+    <UDN>uuid:Upnp-MMRprogram-1_0-1234567890001</UDN>
+    <presentationURL>http://192.168.1.3:8080/</presentationURL>
+    <dlna:X_DLNADOC xmlns:dlna="urn:schemas-dlna-org:device-1-0">DMR-1.50</dlna:X_DLNADOC>
+    <iconList>
+      <icon>
+        <mimetype>image/png</mimetype>
+        <width>256</width>
+        <height>256</height>
+        <depth>24</depth>
+        <url>/icon-flat-256x256.png</url>
+      </icon>
+      <icon>
+        <mimetype>image/png</mimetype>
+        <width>120</width>
+        <height>120</height>
+        <depth>24</depth>
+        <url>/icon-flat-120x120.png</url>
+      </icon>
+    </iconList>
+    <serviceList>
+      <service>
+        <serviceType>urn:schemas-upnp-org:service:AVTransport:1</serviceType>
+        <serviceId>urn:upnp-org:serviceId:AVTransport</serviceId>
+        <SCPDURL>/AVTransport-description.xml</SCPDURL>
+        <controlURL>/AVTransport/c70b61eb-cdca-1758-6a7f-0653d1cc9b86/control.xml</controlURL>
+        <eventSubURL>/AVTransport/c70b61eb-cdca-1758-6a7f-0653d1cc9b86/event.xml</eventSubURL>
+      </service>
+      <service>
+        <serviceType>urn:schemas-upnp-org:service:ConnectionManager:1</serviceType>
+        <serviceId>urn:upnp-org:serviceId:ConnectionManager</serviceId>
+        <SCPDURL>/ConnectionManager-description.xml</SCPDURL>
+        <controlURL>/ConnectionManager/c70b61eb-cdca-1758-6a7f-0653d1cc9b86/control.xml</controlURL>
+        <eventSubURL>/ConnectionManager/c70b61eb-cdca-1758-6a7f-0653d1cc9b86/event.xml</eventSubURL>
+      </service>
+      <service>
+        <serviceType>urn:schemas-upnp-org:service:RenderingControl:1</serviceType>
+        <serviceId>urn:upnp-org:serviceId:RenderingControl</serviceId>
+        <SCPDURL>/RenderingControl-description.xml</SCPDURL>
+        <controlURL>/RenderingControl/c70b61eb-cdca-1758-6a7f-0653d1cc9b86/control.xml</controlURL>
+        <eventSubURL>/RenderingControl/c70b61eb-cdca-1758-6a7f-0653d1cc9b86/event.xml</eventSubURL>
+      </service>
+    </serviceList>
+  </device>
+</root>
